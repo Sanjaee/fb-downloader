@@ -1,5 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faInstagram,
+  faLinkedin,
+  faLinkedinIn,
+} from "@fortawesome/free-brands-svg-icons";
 
 function App() {
   const [videoUrl, setVideoUrl] = useState("");
@@ -57,6 +63,23 @@ function App() {
           required
         />
         <button type="submit">Download Video</button>
+        <div class="support-me">
+          <label className="icon-container">Support Me :</label>
+          <div class="icons">
+            <a
+              href="https://www.instagram.com/ahmdafriz4/"
+              className="icon icon-instragram"
+            >
+              <FontAwesomeIcon icon={faInstagram} />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/ahmad-afriza-ez4-ab9173276/"
+              className="icon icon-linkedin"
+            >
+              <FontAwesomeIcon icon={faLinkedinIn} />
+            </a>
+          </div>
+        </div>
       </form>
       {error && <p style={{ color: "red" }}>{error}</p>}
       {result && (
@@ -75,7 +98,7 @@ function App() {
                   <p>Quality: {link.quality}</p>
                   <p>Mute: {link.mute ? "Yes" : "No"}</p>
                   <button onClick={() => handleDownload(link.url)}>
-                    Download {link.quality}
+                    Download {link.quality}{" "}
                   </button>
                 </div>
               ))}
