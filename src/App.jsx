@@ -1,19 +1,17 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faInstagram,
-  faLinkedin,
-  faLinkedinIn,
-} from "@fortawesome/free-brands-svg-icons";
+import { faInstagram, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
 
 function App() {
   const [videoUrl, setVideoUrl] = useState("");
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true); // Set loading to true when submitting the form
 
     const encodedParams = new URLSearchParams();
     encodedParams.set("URL", videoUrl);
@@ -38,6 +36,8 @@ function App() {
       console.error(error);
       setResult(null); // Clear the result in case of an error
       setError("Internal Server Error");
+    } finally {
+      setLoading(false); // Set loading to false after the request is complete
     }
   };
 
@@ -62,10 +62,12 @@ function App() {
           onChange={(e) => setVideoUrl(e.target.value)}
           required
         />
-        <button type="submit">Download Video</button>
-        <div class="support-me">
+        <button type="submit" disabled={loading}>
+          {loading ? "Loading..." : "Download Video"}
+        </button>
+        <div className="support-me">
           <label className="icon-container">Support Me :</label>
-          <div class="icons">
+          <div className="icons">
             <a
               href="https://www.instagram.com/ahmdafriz4/"
               className="icon icon-instragram"
@@ -82,7 +84,7 @@ function App() {
         </div>
       </form>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {result && (
+      {result && result.links ? (
         <div className="result">
           <h2>Result:</h2>
           <p>Title: {result.title}</p>
@@ -90,21 +92,21 @@ function App() {
           {result.thumbnail && <img src={result.thumbnail} alt="Thumbnail" />}
 
           <h3>Download Links:</h3>
-          {result.links && (
-            <div>
-              {result.links.map((link, index) => (
-                <div key={index}>
-                  <p>Type: {link.type}</p>
-                  <p>Quality: {link.quality}</p>
-                  <p>Mute: {link.mute ? "Yes" : "No"}</p>
-                  <button onClick={() => handleDownload(link.url)}>
-                    Download {link.quality}{" "}
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          <div>
+            {result.links.map((link, index) => (
+              <div key={index}>
+                <p>Type: {link.type}</p>
+                <p>Quality: {link.quality}</p>
+                <p>Mute: {link.mute ? "Yes" : "No"}</p>
+                <button onClick={() => handleDownload(link.url)}>
+                  Download {link.quality}{" "}
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
+      ) : (
+        <p className="video-not-found">Vidio tidak ditemukan.</p>
       )}
     </div>
   );

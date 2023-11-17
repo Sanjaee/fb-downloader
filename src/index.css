@@ -144,3 +144,8 @@ button:hover {
 .icon-text {
   margin-top: 5px; /* Spasi antara ikon dan teks */
 }
+.video-not-found {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 18px;
+}
