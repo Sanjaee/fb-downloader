@@ -4,6 +4,7 @@ import axios from "axios";
 function App() {
   const [videoUrl, setVideoUrl] = useState("");
   const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -26,9 +27,11 @@ function App() {
     try {
       const response = await axios.request(options);
       setResult(response.data);
+      setError(null); // Clear any previous errors
     } catch (error) {
       console.error(error);
-      setResult({ error: "Internal Server Error" });
+      setResult(null); // Clear the result in case of an error
+      setError("Internal Server Error");
     }
   };
 
@@ -55,24 +58,29 @@ function App() {
         />
         <button type="submit">Download Video</button>
       </form>
+      {error && <p style={{ color: "red" }}>{error}</p>}
       {result && (
         <div className="result">
           <h2>Result:</h2>
           <p>Title: {result.title}</p>
           <p>Duration: {result.duration}</p>
-          <img src={result.thumbnail} alt="Thumbnail" />
+          {result.thumbnail && <img src={result.thumbnail} alt="Thumbnail" />}
 
           <h3>Download Links:</h3>
-          {result.links.map((link, index) => (
-            <div key={index}>
-              <p>Type: {link.type}</p>
-              <p>Quality: {link.quality}</p>
-              <p>Mute: {link.mute ? "Yes" : "No"}</p>
-              <button onClick={() => handleDownload(link.url)}>
-                Download {link.quality}
-              </button>
+          {result.links && (
+            <div>
+              {result.links.map((link, index) => (
+                <div key={index}>
+                  <p>Type: {link.type}</p>
+                  <p>Quality: {link.quality}</p>
+                  <p>Mute: {link.mute ? "Yes" : "No"}</p>
+                  <button onClick={() => handleDownload(link.url)}>
+                    Download {link.quality}
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>
