@@ -11,66 +11,63 @@ function App() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true); // Set loading to true when submitting the form
-
-    const encodedParams = new URLSearchParams();
-    encodedParams.set("URL", videoUrl);
+    setLoading(true);
 
     const options = {
-      method: "POST",
-      url: "https://facebook-story-saver-and-video-downloader.p.rapidapi.com/",
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-        "X-RapidAPI-Key": "7cb05360f8mshca6918f8ea33103p1c4264jsn97b178de78f8",
-        "X-RapidAPI-Host":
-          "facebook-story-saver-and-video-downloader.p.rapidapi.com",
+      method: "GET",
+      url: "https://fb-video-reels.p.rapidapi.com/api/getSocialVideo",
+      params: {
+        url: videoUrl,
+        filename: "Test video",
       },
-      data: encodedParams,
+      headers: {
+        "X-RapidAPI-Key": "7cb05360f8mshca6918f8ea33103p1c4264jsn97b178de78f8",
+        "X-RapidAPI-Host": "fb-video-reels.p.rapidapi.com",
+      },
     };
 
     try {
       const response = await axios.request(options);
       setResult(response.data);
-      setError(null); // Clear any previous errors
+      setError(null);
     } catch (error) {
       console.error(error);
-      setResult(null); // Clear the result in case of an error
+      setResult(null);
       setError("Internal Server Error");
     } finally {
-      setLoading(false); // Set loading to false after the request is complete
+      setLoading(false);
     }
   };
 
   const handleDownload = (url) => {
-    // You can use the HTML5 download attribute to force a download
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "downloaded-video.mp4";
-    link.click();
+    // Membuka tautan unduh di tab baru
+    window.open(url, "_blank");
   };
 
   return (
     <div className="container">
       <h1>Facebook Video Downloader</h1>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="videoUrl">Masukan Video URL:</label>
-        <input
-          type="text"
-          id="videoUrl"
-          name="videoUrl"
-          value={videoUrl}
-          onChange={(e) => setVideoUrl(e.target.value)}
-          required
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Loading..." : "Download Video"}
-        </button>
+        <label htmlFor="videoUrl">Masukkan URL Video:</label>
+        <div className="input-with-button">
+          <input
+            type="text"
+            id="videoUrl"
+            name="videoUrl"
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+            required
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? "Loading..." : "Download Video"}
+          </button>
+        </div>
         <div className="support-me">
           <label className="icon-container">Support Me :</label>
           <div className="icons">
             <a
               href="https://www.instagram.com/ahmdafriz4/"
-              className="icon icon-instragram"
+              className="icon icon-instagram"
             >
               <FontAwesomeIcon icon={faInstagram} />
             </a>
@@ -84,29 +81,33 @@ function App() {
         </div>
       </form>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {result && result.links ? (
+      {result && result.error === false ? (
         <div className="result">
-          <h2>Result:</h2>
-          <p>Title: {result.title}</p>
-          <p>Duration: {result.duration}</p>
-          {result.thumbnail && <img src={result.thumbnail} alt="Thumbnail" />}
+          <h2>Hasil:</h2>
+          <p>Judul: {result.description}</p>
+          <p>Deskripsi: {result.description}</p>
+          {result.picture && <img src={result.picture} alt="Thumbnail" />}
 
-          <h3>Download Links:</h3>
+          <h3>Tautan Unduh:</h3>
           <div>
-            {result.links.map((link, index) => (
-              <div key={index}>
-                <p>Type: {link.type}</p>
-                <p>Quality: {link.quality}</p>
-                <p>Mute: {link.mute ? "Yes" : "No"}</p>
-                <button onClick={() => handleDownload(link.url)}>
-                  Download {link.quality}{" "}
-                </button>
-              </div>
-            ))}
+            {result.links && result.links.length > 0 ? (
+              result.links.map((link, index) => (
+                <div key={index}>
+                  <p>Jenis: {link.type}</p>
+                  <p>Kualitas: {link.quality}</p>
+                  <p>Tanpa Suara: {link.mute ? "Ya" : "Tidak"}</p>
+                  <button onClick={() => handleDownload(link.url)}>
+                    Unduh {link.quality}{" "}
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p>Tidak ada tautan unduh.</p>
+            )}
           </div>
         </div>
       ) : (
-        <p className="video-not-found">Vidio tidak ditemukan.</p>
+        <p className="video-not-found">Video tidak ditemukan.</p>
       )}
     </div>
   );
